@@ -13,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -113,7 +114,7 @@ public class EventoDAO {
             if(resultados.size()>0){
                 return resultados;
             }else{
-                return null;
+                return Collections.emptyList();
             }
         }finally{
             if(rs != null){

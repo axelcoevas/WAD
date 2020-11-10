@@ -44,7 +44,7 @@ public class EventoServlet extends HttpServlet {
             nuevoEvento(request, response);
         } else if (accion.equals("eliminar")) {
             eliminarEvento(request, response);
-        } else if (accion.equals("acualizar")) {
+        } else if (accion.equals("actualizar")) {
             actualizarEvento(request, response);
         } else if (accion.equals("guardar")) {
             almacenarEvento(request, response);
@@ -101,13 +101,31 @@ public class EventoServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet EventoServlet</title>");
-            out.println("<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css\" integrity=\"sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2\" crossorigin=\"anonymous\">");
+            out.println("<meta http-equiv=”Content-Type” content=”text/html; charset=ISO-8859-1″ />");
+            out.println("<title>Lista de Eventos</title>");
+            out.println("<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css\">");
             out.println("</head>");
             out.println("<body>");         
-            out.println("<div class='container'>");
+            out.println("<div class='container'>"
+                      + "<nav class=\"navbar navbar-light bg-light\">\n" +
+        "                    <a class=\"navbar-brand\" href=\"index.html\">\n" +
+        "                        <img src=\"imagenes/escom.png\" width=\"30\" height=\"30\" class=\"d-inline-block align-top\" alt=\"\">\n" +
+        "                        Eventos\n" +
+        "                    </a>\n" +
+        "                </nav>\n" +
+        "                <div class=\"collapse navbar-collapse\" id=\"navbarNav\">\n" +
+        "                    <ul class=\"navbar-nav\">\n" +
+        "                        <li class=\"nav-item active\">\n" +
+        "                            <a class=\"nav-link\" href=\"\">Inicio<span class=\"sr-only\">(current)</span></a>\n" +
+        "                        </li>\n" +
+        "                        <li class=\"nav-item\">\n" +
+        "                            <a class=\"nav-link\" href=\"EventoServlet?accion=listaDeEventos\">Lista de Eventos</a>\n" +
+        "                        </li>\n" +
+        "                    </ul>\n" +
+        "                </div>");
             out.println("<h1>Lista de eventos</h1>");
-            out.println("<table class='table table-stripped table-responsive'>");
+            out.println("<div class=\"table-responsive\">");
+            out.println("<table class='table table-stripped'>");
 
             out.println("<tr>");
             
@@ -150,37 +168,42 @@ public class EventoServlet extends HttpServlet {
             EventoDAO dao = new EventoDAO();
             try {
                 List lista = dao.readAll();
-                for (int i = 0; i < lista.size(); i++) {
-                    Evento e = (Evento) lista.get(i);
-                    idEvento = e.getIdEvento();
-                    nombreEvento = e.getNombreEvento();
-                    sede = e.getSede();
-                    fechaInicio = e.getFechaInicio();
-                    fechaTermino = e.getFechaTermino();
-                    
-                    out.println("<tr>");
-                    out.println("<td>"+idEvento+"</td>");
-                    out.println("<td>"+nombreEvento+"</td>");
-                    out.println("<td>"+sede+"</td>");
-                    out.println("<td>"+fechaInicio+"</td>");
-                    out.println("<td>"+fechaTermino+"</td>");
-                    out.println("<td><a href='EventoServlet?accion=actualizar&id="+idEvento+"'>Actualizar</a> | <a href='EventoServlet?accion=eliminar&id="+idEvento+"'>Eliminar</a></td>");
-                    out.println("</tr>");
+                if(!lista.isEmpty()){
+                    for (int i = 0; i < lista.size(); i++) {
+                        Evento e = (Evento) lista.get(i);
+                        idEvento = e.getIdEvento();
+                        nombreEvento = e.getNombreEvento();
+                        sede = e.getSede();
+                        fechaInicio = e.getFechaInicio();
+                        fechaTermino = e.getFechaTermino();
+
+                        out.println("<tr>");
+                        out.println("<td>"+idEvento+"</td>");
+                        out.println("<td><a href='EventoServlet?accion=ver&id="+idEvento+"'>"+nombreEvento+"</a></td>");
+                        out.println("<td>"+sede+"</td>");
+                        out.println("<td>"+fechaInicio+"</td>");
+                        out.println("<td>"+fechaTermino+"</td>");
+                        out.println("<td>");
+                        out.println("<button onclick=\"window.location.href='EventoServlet?accion=actualizar&id="+idEvento+"'\" type=\"button\" class=\"btn btn-primary\">Actualizar</button> "
+                                  + "<button onclick=\"window.location.href='EventoServlet?accion=eliminar&id="+idEvento+"'\" type=\"button\" class=\"btn btn-danger\">Eliminar</button>");
+                        out.println("</td>");
+                        out.println("</tr>");
+                    }
                 }
             } catch (SQLException e) {
                 
             }
-
+            
             out.println("</table>");
-
+            out.println("</div>");
+            out.println("<button onclick=\"window.location.href='eventosForm.html'\" type=\"button\" class=\"btn btn-success\" style='float: right'>Nuevo</button>");
             out.println("</div>");
             out.println("</body>");
             out.println("</html>");
         }
     }
 
-    private void nuevoEvento(HttpServletRequest request, HttpServletResponse response) {
-        
+    private void nuevoEvento(HttpServletRequest request, HttpServletResponse response) throws IOException {
     }
 
     private void eliminarEvento(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -198,7 +221,159 @@ public class EventoServlet extends HttpServlet {
         }   
     }
 
-    private void actualizarEvento(HttpServletRequest request, HttpServletResponse response) {
+    private void actualizarEvento(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        int id = Integer.parseInt(request.getParameter("id"));
+        
+        EventoDAO dao = new EventoDAO();
+        Evento e = new Evento();
+        
+        try {
+            e.setIdEvento(id);
+            e = dao.read(e);
+        } catch (SQLException ex) {
+            Logger.getLogger(EventoServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        try (PrintWriter out = response.getWriter()){
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<meta http-equiv=”Content-Type” content=”text/html; charset=ISO-8859-1″ />");
+            out.println("<title>Actualizar</title>");
+            out.println("<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css\">");
+            out.println("</head>");
+            out.println("<body>"); 
+            out.println(""
+                + "        <div class=\"container\">\n" +
+                "            <div class=\"row justify-content-center\">\n" +
+                "                <div class=\"col-md-8\">\n" +
+                "                    <div class=\"card\">\n" +
+                "                        <div class=\"card-header\">Actualizar Evento</div>\n" +
+                "                        <div class=\"card-body\">\n" +
+                "                            <form method=\"POST\" action=\"EventoServlet?accion=guardar\">\n" +
+                "                                <div class=\"form-group row\">\n" +
+                "                                    <label for=\"idEvento\" \n" +
+                "                                           class=\"col-md-4 col-form-label text-md-right\">\n" +
+                "                                        Id Evento\n" +
+                "                                    </label>\n" +
+                "                                    <div class=\"col-md-6\">\n" +
+                "                                        <input \n" +
+                "                                            id=\"idEvento\" \n" +
+                "                                            type=\"text\" \n" +
+                "                                            class=\"form-control \"\n" +
+                "                                            name=\"id\" \n" +
+                "                                            value='"+e.getIdEvento()+"'"+
+                "                                            autofocus readonly/>\n" +
+                "                                    </div>\n" +
+                "                                </div>" +                                                       
+                "                                <div class=\"form-group row\">\n" +
+                "                                    <label for=\"sede\" \n" +
+                "                                           class=\"col-md-4 col-form-label text-md-right\">\n" +
+                "                                        Nombre del Evento\n" +
+                "                                    </label>\n" +
+                "                                    <div class=\"col-md-6\">\n" +
+                "                                        <input \n" +
+                "                                            id=\"sede\" \n" +
+                "                                            type=\"text\" \n" +
+                "                                            class=\"form-control \"\n" +
+                "                                            name=\"nombreEvento\" \n" +
+                "                                            value='"+e.getNombreEvento()+"'"+
+                "                                            required \n" +
+                "                                            autofocus />\n" +
+                "                                    </div>\n" +
+                "                                </div>\n" +              
+                "                                <div class=\"form-group row\">\n" +
+                "                                    <label for=\"sede\" \n" +
+                "                                           class=\"col-md-4 col-form-label text-md-right\">\n" +
+                "                                        Sede Evento\n" +
+                "                                    </label>\n" +
+                "                                    <div class=\"col-md-6\">\n" +
+                "                                        <input \n" +
+                "                                            id=\"sede\" \n" +
+                "                                            type=\"text\" \n" +
+                "                                            class=\"form-control \"\n" +
+                "                                            name=\"sede\" \n" +
+                "                                            value='"+e.getSede()+"'"+
+                "                                            required \n" +
+                "                                            autofocus />\n" +
+                "                                    </div>\n" +
+                "                                </div>\n" +
+                "                                <div class=\"form-group row\">\n" +
+                "                                    <label for=\"fechaInicio\" \n" +
+                "                                            class=\"col-md-4 col-form-label text-md-right\">\n" +
+                "                                                Fecha Inicio\n" +
+                "                                    </label>\n" +
+                "                                    <div class=\"col-md-6\">\n" +
+                "                                        <input \n" +
+                "                                            class=\"form-control\" \n" +
+                "                                            type=\"date\"\n" +
+                "                                            name=\"fechaInicio\" " +
+                "                                            value='"+e.getFechaInicio()+"' "+
+                "                                            id=\"fechaInicio\">\n" +
+                "                                    </div>\n" +
+                "                                </div>\n" +
+                "                                <div class=\"form-group row\">\n" +
+                "                                    <label for=\"fechaTermino\" \n" +
+                "                                            class=\"col-md-4 col-form-label text-md-right\">\n" +
+                "                                                Fecha Término\n" +
+                "                                    </label>\n" +
+                "                                    <div class=\"col-md-6\">\n" +
+                "                                        <input \n" +
+                "                                            class=\"form-control\" \n" +
+                "                                            type=\"date\" \n" +
+                "                                            name=\"fechaTermino\"\n" +
+                "                                            value='"+e.getFechaTermino()+"' "+
+                "                                            id=\"fechaTermino\">\n" +
+                "                                    </div>\n" +
+                "                                </div>\n" +
+                "                                <div class=\"form-group row mb-0\">\n" +
+                "                                    <div class=\"col-md-6 offset-md-4\">\n" +
+                "                                        <button type=\"submit\" class=\"btn btn-success\">\n" +
+                "                                            Actualizar\n" +
+                "                                        </button>\n" +
+                "                                        <button onclick=\"window.location.href='EventoServlet?accion=listaDeEventos'\" class=\"btn btn-primary\">\n" +
+                "                                            Cancelar\n" +
+                "                                        </button>\n" +
+                "                                    </div>\n" +
+                "                                </div>\n" +
+                "                            </form>\n" +
+                "                        </div>\n" +
+                "                    </div>\n" +
+                "                </div>\n" +
+                "            </div>\n");
+            out.println("</div>");
+            out.println("<script>\n" +
+                "            var fechaInicio = document.getElementById(\"fechaInicio\");\n" +
+                "            var fechaTermino = document.getElementById(\"fechaTermino\");\n" +
+                "\n" +
+                "            //Obtiene la fecha de hoy\n" +
+                "            var today = new Date();\n" +
+                "            var dd = today.getDate();\n" +
+                "            var mm = today.getMonth()+1; \n" +
+                "            var yyyy = today.getFullYear();\n" +
+                "             if(dd<10){\n" +
+                "                    dd='0'+dd;\n" +
+                "                } \n" +
+                "                if(mm<10){\n" +
+                "                    mm='0'+mm;\n" +
+                "                } \n" +
+                "\n" +
+                "            today = yyyy+'-'+mm+'-'+dd;\n" +
+                "\n" +
+                "            fechaInicio.setAttribute(\"min\", today);\n" +
+                "            fechaTermino.setAttribute(\"min\", today);\n" +
+                "\n" +
+                "\n" +
+                "            //Cambia la fecha mínima de fechaTermino cada que fechaInicio cambia\n" +
+                "            function minTermino(){\n" +
+                "                var max = fechaInicio.value;\n" +
+                "\n" +
+                "                fechaTermino.setAttribute(\"min\", max);\n" +
+                "            }\n" +
+                "        </script>");
+            out.println("</body>");
+            out.println("</html>");
+        }
     }
 
     private void almacenarEvento(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -222,7 +397,7 @@ public class EventoServlet extends HttpServlet {
                 try (PrintWriter out = response.getWriter()) {
                     out.println("<script type=\"text/javascript\">");
                     out.println("alert('Registrado con éxito');");
-                    out.println("</script>");
+                    out.println("</script>");          
                     response.sendRedirect("EventoServlet?accion=listaDeEventos");
                 }
             }catch(SQLException ex){
@@ -236,6 +411,8 @@ public class EventoServlet extends HttpServlet {
                     out.println("<script type=\"text/javascript\">");
                     out.println("alert('Actualizado con éxito');");
                     out.println("</script>");
+                    response.sendRedirect("EventoServlet?accion=listaDeEventos");
+                    
                 }
             } catch (SQLException ex) {
                 Logger.getLogger(EventoServlet.class.getName()).log(Level.SEVERE, null, ex);
@@ -257,13 +434,23 @@ public class EventoServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet EventoServlet</title>");
+            out.println("<meta http-equiv=”Content-Type” content=”text/html; charset=ISO-8859-1″ />");
+            out.println("<title>"+e.getNombreEvento()+"</title>");
             out.println("<link rel=\'stylesheet\' href=\'https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css\'>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Datos del evento</h1>");
             out.println("<div class='container'>");
-            
+            out.println("<h1>Datos del evento</h1>");
+            out.println("<div class=\"card\" style=\"width: 50%; align: center;\">\n" +
+                        "  <img src=\"imagenes/escom.png\" class=\"card-img-top\" alt=\"...\">"+
+                        "  <div class=\"card-body\">\n" +
+                        "    <h5 class=\"card-title\">"+e.getNombreEvento()+"</h5>\n" +
+                        "    <h6 class=\"card-subtitle mb-2 text-muted\">"+e.getSede()+"</h6>\n" +
+                        "    <p class=\"card-text\">Evento que se llevará a cabo del "+e.getFechaInicio()+" al "+e.getFechaTermino()+"</p>\n" +
+                        "    <a href=\"EventoServlet?accion=actualizar&id="+e.getIdEvento()+"\" class=\"card-link\">Editar</a>\n" +
+                        "    <a href=\"EventoServlet?accion=listaDeEventos\" class=\"card-link\">Volver</a>\n" +
+                        "  </div>\n" +
+                        "</div>");
             out.println("</div>");
             out.println("</body>");
             out.println("</html>");
