@@ -62,7 +62,7 @@ end //
 delimiter ;
 
 delimiter //
-create procedure spVerrCategoria(
+create procedure spVerCategoria(
 	id int
 ) begin
 select * from Categoria where idCategoria = id;
