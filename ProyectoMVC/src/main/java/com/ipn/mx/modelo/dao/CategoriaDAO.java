@@ -27,7 +27,7 @@ public class CategoriaDAO {
     private static final String SQL_INSERT = "{call spInsertarCategoria(?, ?)}";
     private static final String SQL_UPDATE = "{call spActualizarCategoria(?, ?, ?)}";
     private static final String SQL_DELETE = "{call spBorrarCategoria(?)}";
-    private static final String SQL_SELECT = "{call spVerCategoria(?)";
+    private static final String SQL_SELECT = "{call spVerCategoria(?)}";
     private static final String SQL_SELECT_ALL = "{call spMostrarCategorias()}";
     
     private Connection con;
