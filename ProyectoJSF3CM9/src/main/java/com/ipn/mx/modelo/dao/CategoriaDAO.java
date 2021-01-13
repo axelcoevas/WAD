@@ -108,11 +108,10 @@ public class CategoriaDAO {
         CategoriaDAO dao = new CategoriaDAO();
         CategoriaDTO dto = new CategoriaDTO();
         dto.getEntidad().setIdCategoria(1);
-        
+        dto = dao.read(dto);
         
         //System.out.println(dao.readAll());
-        System.out.println(dao.read(dto));
-        
+        System.out.println(dto.toString());
     }
 
 }
