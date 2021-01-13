@@ -5,7 +5,7 @@
  */
 package com.ipn.mx.modelo.dao;
 
-import com.ipn.mx.modelo.dto.CategoriaDTO;
+import com.ipn.mx.modelo.dto.EntidadFederativaDTO;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -15,24 +15,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
 /**
  *
  * @author axel_
  */
-public class CategoriaDAO {
+public class EntidadFederativaDAO {
 
-    private static final String SQL_INSERT = "insert into Categoria (nombreCategoria, descripcionCategoria) values (?, ?)";
-    private static final String SQL_UPDATE = "update Categoria set nombreCategoria = ?, descripcionCategoria = ? where idCategoria = ?";
-    private static final String SQL_DELETE = "delete from Categoria where idCategoria = ?";
-    private static final String SQL_SELECT = "select * from Categoria where idCategoria = ?";
-    private static final String SQL_SELECT_ALL = "select * from Categoria";
+    private static final String SQL_INSERT = "{call spInsertarEntidadFederativa(?, ?, ?)}";
+    private static final String SQL_UPDATE = "{call spActualizarEntidadFederativa(?, ?, ?)}";
+    private static final String SQL_DELETE = "{call spBorrarEntidadFederativa(?)}";
+    private static final String SQL_SELECT = "{call spVerEntidadFederativa(?)}";
+    private static final String SQL_SELECT_ALL = "{call spMostrarEntidadesFederativas()}";
 
-//    private static final String SQL_INSERT = "{call spInsertarCategoria(?, ?)}";
-//    private static final String SQL_UPDATE = "{call spActualizarCategoria(?, ?, ?)}";
-//    private static final String SQL_DELETE = "{call spBorrarCategoria(?)}";
-//    private static final String SQL_SELECT = "{call spVerCategoria(?)}";
-//    private static final String SQL_SELECT_ALL = "{call spMostrarCategorias()}";
-    
     private Connection con;
 
     public Connection obtenerConexion() {
@@ -40,44 +39,16 @@ public class CategoriaDAO {
         con = conexion.obtenerConexion();
         return con;
     }
-    
-//        public Connection obtenerConexion() {
-//        String user = "postgres";
-//        String pwd = "olakase";
-//        String url = "jdbc:postgresql://localhost:5432/3CM9";
-//        String mySQLDriver = "org.postgresql.Driver";
-//
-//        try {
-//            Class.forName(mySQLDriver);
-//            con = DriverManager.getConnection(url, user, pwd);
-//        } catch (ClassNotFoundException | SQLException ex) {
-//            Logger.getLogger(CategoriaDAO.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        return con;
-//    }
 
-//    private void obtenerConexion() {
-//        Context ic;
-//        Context ec;
-//        String recursoDataSource = "jdbc/3cm9";
-//        try {
-//            ic = new InitialContext();
-//            ec = (Context) ic.lookup("java:comp/env");
-//            DataSource ds = (DataSource) ec.lookup(recursoDataSource);
-//            con = ds.getConnection();
-//        } catch (NamingException | SQLException ex) {
-//            Logger.getLogger(CategoriaDAO.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//    }
-
-    public void create(CategoriaDTO dto) throws SQLException {
+    public void create(EntidadFederativaDTO dto) throws SQLException {
         obtenerConexion();
         CallableStatement cs = null;
 
         try {
             cs = con.prepareCall(SQL_INSERT);
-            cs.setString(1, dto.getEntidad().getNombreCategoria());
-            cs.setString(2, dto.getEntidad().getDescripcionCategoria());
+            cs.setInt(1, dto.getEntidad().getIdEntidadFederativa());
+            cs.setString(2, dto.getEntidad().getNombre());
+            cs.setString(3, dto.getEntidad().getAbreviatura());
             cs.executeUpdate();
         } finally {
             if (cs != null) {
@@ -89,15 +60,15 @@ public class CategoriaDAO {
         }
     }
 
-    public void update(CategoriaDTO dto) throws SQLException {
+    public void update(EntidadFederativaDTO dto) throws SQLException {
         obtenerConexion();
         CallableStatement cs = null;
 
         try {
             cs = con.prepareCall(SQL_UPDATE);
-            cs.setString(1, dto.getEntidad().getNombreCategoria());
-            cs.setString(2, dto.getEntidad().getDescripcionCategoria());
-            cs.setInt(3, dto.getEntidad().getIdCategoria());
+            cs.setString(1, dto.getEntidad().getNombre());
+            cs.setString(2, dto.getEntidad().getAbreviatura());
+            cs.setInt(3, dto.getEntidad().getIdEntidadFederativa());
             cs.executeUpdate();
         } finally {
             if (cs != null) {
@@ -109,13 +80,13 @@ public class CategoriaDAO {
         }
     }
 
-    public void delete(CategoriaDTO dto) throws SQLException {
+    public void delete(EntidadFederativaDTO dto) throws SQLException {
         obtenerConexion();
         CallableStatement cs = null;
 
         try {
             cs = con.prepareCall(SQL_DELETE);
-            cs.setInt(1, dto.getEntidad().getIdCategoria());
+            cs.setInt(1, dto.getEntidad().getIdEntidadFederativa());
             cs.executeUpdate();
         } finally {
             if (cs != null) {
@@ -127,18 +98,18 @@ public class CategoriaDAO {
         }
     }
 
-    public CategoriaDTO read(CategoriaDTO dto) throws SQLException {
+    public EntidadFederativaDTO read(EntidadFederativaDTO dto) throws SQLException {
         obtenerConexion();
         CallableStatement cs = null;
         ResultSet rs = null;
 
         try {
             cs = con.prepareCall(SQL_SELECT);
-            cs.setInt(1, dto.getEntidad().getIdCategoria());
+            cs.setInt(1, dto.getEntidad().getIdEntidadFederativa());
             rs = cs.executeQuery();
             List resultados = obtenerResultados(rs);
             if (resultados.size() > 0) {
-                return (CategoriaDTO) resultados.get(0);
+                return (EntidadFederativaDTO) resultados.get(0);
             } else {
                 return null;
             }
@@ -185,10 +156,10 @@ public class CategoriaDAO {
     private List obtenerResultados(ResultSet rs) throws SQLException {
         List resultados = new ArrayList();
         while (rs.next()) {
-            CategoriaDTO dto = new CategoriaDTO();
-            dto.getEntidad().setIdCategoria(rs.getInt("idCategoria"));
-            dto.getEntidad().setNombreCategoria(rs.getString("nombreCategoria"));
-            dto.getEntidad().setDescripcionCategoria(rs.getString("descripcionCategoria"));
+            EntidadFederativaDTO dto = new EntidadFederativaDTO();
+            dto.getEntidad().setIdEntidadFederativa(rs.getInt("idEntidadFederativa"));
+            dto.getEntidad().setNombre(rs.getString("nombre"));
+            dto.getEntidad().setAbreviatura(rs.getString("abreviatura"));
             resultados.add(dto);
         }
         return resultados;

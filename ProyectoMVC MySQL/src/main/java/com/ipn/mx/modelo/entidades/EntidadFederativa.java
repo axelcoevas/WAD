@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ipn.mx.modelo.dto;
+package com.ipn.mx.modelo.entidades;
 
-import com.ipn.mx.modelo.entidades.Categoria;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  *
@@ -16,10 +16,9 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
-public class CategoriaDTO implements Serializable{
-    private Categoria entidad;
-
-    public CategoriaDTO() {
-        entidad = new Categoria();
-    }
+@NoArgsConstructor
+public class EntidadFederativa implements Serializable{
+    private int idEntidadFederativa;
+    private String nombre;
+    private String abreviatura;
 }

@@ -5,7 +5,7 @@
  */
 package com.ipn.mx.modelo.dto;
 
-import com.ipn.mx.modelo.entidades.Categoria;
+import com.ipn.mx.modelo.entidades.Municipio;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,10 +16,10 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
-public class CategoriaDTO implements Serializable{
-    private Categoria entidad;
-
-    public CategoriaDTO() {
-        entidad = new Categoria();
+public class MunicipioDTO implements Serializable{
+    private Municipio entidad;
+    
+    public MunicipioDTO(){
+        this.entidad = new Municipio();
     }
 }

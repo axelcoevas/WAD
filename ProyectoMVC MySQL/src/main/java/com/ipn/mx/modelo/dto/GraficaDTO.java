@@ -5,10 +5,10 @@
  */
 package com.ipn.mx.modelo.dto;
 
-import com.ipn.mx.modelo.entidades.Categoria;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  *
@@ -16,10 +16,8 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
-public class CategoriaDTO implements Serializable{
-    private Categoria entidad;
-
-    public CategoriaDTO() {
-        entidad = new Categoria();
-    }
+@NoArgsConstructor
+public class GraficaDTO implements Serializable {
+    private String nombre;
+    private int cantidad;
 }

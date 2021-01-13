@@ -5,21 +5,20 @@
  */
 package com.ipn.mx.modelo.dto;
 
-import com.ipn.mx.modelo.entidades.Categoria;
+import com.ipn.mx.modelo.entidades.Producto;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
 /**
  *
  * @author axel_
  */
 @Data
 @AllArgsConstructor
-public class CategoriaDTO implements Serializable{
-    private Categoria entidad;
-
-    public CategoriaDTO() {
-        entidad = new Categoria();
+public class ProductoDTO implements Serializable{
+    private Producto entidad;
+    
+    public ProductoDTO(){
+        this.entidad = new Producto();
     }
 }
